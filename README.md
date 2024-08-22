@@ -43,7 +43,7 @@ Ok to proceed? (y) y
 - Pages Router：在pages目录下创建对应的文件或者目录即是一个路由。
 - App Router：NextJs从版本13.4起的默认路由模式
 
-##### App的出现？
+##### App的出现
 
 - pages 下每个文件都会被当成路由，不符合开发习惯
 - app 架构新增了布局（layout）、模版（template）、加载状态（loading）、错误处理（error）、404 等文件，为项目开发提供了一套规范。
@@ -87,7 +87,7 @@ export default function RootLayout({
   );
 }
 ```
-app/obout/layout.js ++只应用于obout路由下的页面++ （可嵌套：app/obout/ThreeLevelPage/layout.js等）
+app/obout/layout.js ++只应用于about路由下的页面++ （可嵌套：app/obout/ThreeLevelPage/layout.js等）
 
 ```
 const AboutLayout = ({ children }) => {
