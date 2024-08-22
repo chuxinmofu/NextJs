@@ -1,8 +1,9 @@
-
-export default function Info() {
+import InfoCom from "@/components/Info"
+const Info = () => {
     return (
-        <div>
-            Info page
-        </div>
-    );
+        <>
+            <InfoCom />
+        </>
+    )
 }
+export default Info

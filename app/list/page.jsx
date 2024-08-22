@@ -1,7 +1,9 @@
-export default function List() {
+import ListCom from "@/components/List"
+const List = () => {
     return (
-        <div>
-            List
-        </div>
-    );
+        <>
+            <ListCom />
+        </>
+    )
 }
+export default List
