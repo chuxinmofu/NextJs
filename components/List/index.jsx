@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Divider } from "antd";
+import { Table, Divider} from "antd";
 import Link from "next/link";
 import { sendGetFileApi } from "@/api/index";
 
@@ -20,7 +20,7 @@ const ListCom = () => {
     }
     const handleSendGetFile = useCallback(async (ele) => {
         const response = await sendGetFileApi(ele);
-        if (response?.code == 1) {
+        if (response?.code == 0) {
             setDataSource(handleFormattedTableData(response.data))
         }
     }, [])
@@ -62,9 +62,7 @@ const ListCom = () => {
         }
     ]
     return (
-        <>
-            <Table columns={columns} dataSource={dataSource} />
-        </>
+        <Table columns={columns} dataSource={dataSource} />
     )
 }
 export default ListCom
