@@ -87,7 +87,7 @@ export default function RootLayout({
   );
 }
 ```
-app/obout/layout.js ++只应用于about路由下的页面++ （可嵌套：app/obout/ThreeLevelPage/layout.js等）
+app/obout/layout.js ++只应用于obout路由下的页面++ （可嵌套：app/about/ThreeLevelPage/layout.js等）
 
 ```
 const AboutLayout = ({ children }) => {
@@ -199,3 +199,82 @@ export default About
 动态参数`[id]`只会接收第一个路由片段,而`[[...id]]`可以捕获后面所有的路由片段
 ##### 6. 客户端和服务端之间的API交互
 NextJs中，对于客户端和服务端之间的API交互，叫做路由处理程序
+未完...
+三. 中间件
+未完...
+
+---
+### **NextJs 渲染**
+**回顾， NextJs 初级篇 NextJs的安装、路由、~~中间件~~等内容**
+#### 一. 什么是CSR、SSR、SSG、ISR
+- `CSR（Client-side Rendering）`：客户端渲染。
+- `SSR（Server-side Rendering）`：服务端渲染。
+- `SSG（Static Site Generation）`：静态站点生成。
+- `ISR（Incremental Static Regeneration）`：增量静态再生
+##### 1. CSR 客户端渲染
+**CSR 常规的实现就是我们常规的React开发，就是一种客户端渲染：**
+
+1. 一般浏览器会下载一个非常小的HTML文件以及必要的JS文件。
+2. 我们在JS中发送请求，更新DOM和渲染页面。比如useEffect钩子函数中初始化页面数据。
+
+**NextJs 中，在AppRouter模式下，使用CSR，在组件中使用 'use client'标明，用useEffect请求初始化数据渲染即可**
+##### 2. SSR 服务端渲染
+假如客户端网速非常差，那么在CSR的情况下，由客户端发起请求加载数据就会非常慢，倘若我们把加载数据的工作丢给服务端，而服务器的网络情况非常良好，那么最终的首屏加载时长FCP(首次内容绘制)也就更短。
+
+但是同样的，由于SSR情况下，它的响应时长还算上了数据的请求，因此响应时间更长，最终的TTFB(从发出页面请求到接收到应答数据第一个字节所花费的时间)指标也就更长。
+
+**NextJs中要想实现SSR，我们可以在pages目录下创建个ssr.tsx文件**
+
+借助getServerSideProps函数来获取数据并通过props返回给前端组件，
+` pages/ssr.js`
+
+```
+export async function getServerSideProps() {
+    const data = [{ 'id': 1, 'name': 'ljj' }]
+    return { props: {data} }
+}
+// getServerSideProps 传入的是什么，这里就接收什么名称的参数
+const SSR = ({ data }: any) =>{
+    return <span id='test'>{JSON.stringify(data)}</span>
+}
+export default SSR;
+```
+##### 3. SSG 静态站点生成
+SSR ，会在构建阶段，就将页面编译成一个静态的HTML文件。
+
+例如，当我们的站点，上面的Layout总是一样的时候，或者是面对所有的用户，展示的都是一个内容，那么这块部分就没必要在用户请求页面的时候来渲染。干脆提前编译为HTML文件，在用户访问的时候，直接返回一个HTML则会更快。
+
+**SSG的几种常见情况：**
+1. 没有数据请求的页面
+静态页面
+1. 页面内容需要请求数据[(getStaticProps)](https://note.youdao.com/)
+2. HTML文件的某些内容，需要通过接口获取，结合 getStaticProps 函数来使用。getStaticProps，会在构建的时候被调用，然后通过props属性传递给组件。
+1. 页面路径需要获取数据[(getStaticProps结合getStaticPaths )](https://note.youdao.com/)
+NextJs 中的动态路由是将动态部分用[]括起来;使其实现SSG。在 getStaticProps 的基础上，追加一个函数的实现 getStaticPaths
+    1. getStaticProps 用来定义获取的数据传递给HTML
+    1. getStaticPaths 则用来定义哪些路径将会实现SSG。
+    1. fallback 返回false代表当访问这些静态路径以外的，则返回404.
+
+##### 4. ISR 增量静态再生
+主体内容不变，局部会发生改变的场景，再使用SSG的情况下需要使局部实现动态刷新，也就是有了ISR；
+1. 在访问某个SSG页面的时候，可能依旧是老的HTML内容。
+2. 但是与此同时，NextJs 会静态编译一个新的HTML文件。
+3. 第二次访问的时候，就会变成新的HTML文件内容了。
+
+解决办法：[(getStaticProps多暴露一个revalidate)](https://note.youdao.com/)
+在 getStaticProps 函数中，多暴露了一个属性：revalidate：x。代表发生请求的时候，需要间隔x秒才会更新页面，构建新的HTML。
+##### 5. 总结
+###### 实现方式
+- **CSR** 参考React的useEffect
+- **SSR** 借助getServerSideProps函数，在服务端请求数据并通过props属性传递给组件
+- **SSG** 
+    - 没有数据请求的页面自动生成HTML 
+    - 文件内容则借助 getStaticProps 函数获取数据，再生成静态文件 ③ 动态路由则借助getStaticPaths来指定生成HTML的路径
+- **ISR** 在SSG的基础上getStaticProps函数追加暴露revalidate属性，代表刷新HTML的时长
+###### 优缺点
+- **CSR** 只有少量的静态文件先加载，由客户端发起请求触发渲染， TTFB 短。但是在网络特别差的情况下，会大大增加FCP（首屏加载时长）
+- **SSR** 可以让初始化请求交给服务端完成，由服务端完成渲染，解决客户端网络不一的情况，FCP缩短，但是会增加响应时长，TTFB时长高。每次请求都会触发SSG渲染。
+- **SSG** 可以让页面生成静态HTML，在编译时机就可以完成构建，只会触发一次。
+- **ISR** 可以控制HTML的刷新时长，在指定的时间范围内使用同一个HTML，时间过后自动重新构建
+
+#### 二. 服务端组件和客户端组件
