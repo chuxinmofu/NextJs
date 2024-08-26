@@ -1,13 +1,14 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Divider } from "antd";
+import { Table, Divider, Button, Card, Space } from "antd";
 import Link from "next/link";
-import { sendGetFileApi } from "@/api/index";
+import { sendGetFileApi, sendGetFile, sendPostAddNew } from "@/api/index";
 import { handleParsePathParams } from "@/utils/methodSet"
 
 
 const ListCom = () => {
     const [dataSource, setDataSource] = useState([])
+    const [fileData, setFileData] = useState([])
     const handleFormattedTableData = (object = {}) => {
         return Object.entries(object).map(([key, element]) => {
             const { zhCN, enUS } = element || {};
@@ -25,15 +26,30 @@ const ListCom = () => {
             setDataSource(handleFormattedTableData(response.data))
         }
     }, [])
+    const handleSendFile = useCallback(async () => {
+        const response = await sendGetFile()
+        if (response?.code == 0) {
+            setFileData(response?.data)
+        }
+    }, [])
+    const handleAddNewFile = useCallback(async () => {
+        const response = await sendPostAddNew()
+        if (response?.code == 0) {
+            handleSendFile()
+        }
+    }, [handleSendFile])
     useEffect(() => {
-        const pathParams = handleParsePathParams(window.location.pathname);
-        const pathPar = pathParams[1];
+        const pathPar = handleParsePathParams()?.[1];
         if (pathPar) {
             handleSendGetFile(pathPar);
         } else {
             handleSendGetFile('app');
         }
     }, [handleSendGetFile]);
+    useEffect(() => {
+        handleSendFile()
+    }, [handleSendFile])
+
     const columns = [
         {
             title: "KeyName",
@@ -69,7 +85,13 @@ const ListCom = () => {
         }
     ]
     return (
-        <Table columns={columns} dataSource={dataSource} />
+        <Card title='国际化列表'>
+            <Space direction='vertical' className='w-full'>
+                <Button type='primary' onClick={() => { handleAddNewFile() }}>添加</Button>
+                <Table columns={columns} dataSource={dataSource} />
+            </Space>
+        </Card>
+
     )
 }
 export default ListCom

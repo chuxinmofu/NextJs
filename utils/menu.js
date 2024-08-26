@@ -45,12 +45,12 @@ export const menuList = [
         label: '其他',
         icon: <UserOutlined />,
         children: [
-            { label: "通知公告 - announce", key: 'announce', value: MENU_ITEMS.ANNOUNCE },
-            { label: "统计报表 - statreport", key: "statreport", value: MENU_ITEMS.STATREPORT },
-            { label: "活动中心 - activity", key: 'activity', value: MENU_ITEMS.ACTIVITY },
+            { label: "通知公告", key: 'announce', value: MENU_ITEMS.ANNOUNCE },
+            { label: "统计报表", key: "statreport", value: MENU_ITEMS.STATREPORT },
+            { label: "活动中心", key: 'activity', value: MENU_ITEMS.ACTIVITY },
             { label: "登录页", key: 'login', value: MENU_ITEMS.LOGIN },
             { label: "考试相关", key: 'exam', value: MENU_ITEMS.EXAM },
-            { label: "component组件相关 - component", value: MENU_ITEMS.COMPONENT },
+            { label: "组件相关", key: 'component', value: MENU_ITEMS.COMPONENT },
         ],
     },
 ];
