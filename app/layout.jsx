@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
             <Menu
               theme="dark"
               mode="horizontal"
-              defaultSelectedKeys={['list']}
+              defaultSelectedKeys={['home']}
               items={[{
                 key: 'home',
                 label: '首页',

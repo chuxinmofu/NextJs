@@ -1,8 +1,9 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Divider} from "antd";
+import { Table, Divider } from "antd";
 import Link from "next/link";
 import { sendGetFileApi } from "@/api/index";
+import { handleParsePathParams } from "@/utils/methodSet"
 
 
 const ListCom = () => {
@@ -25,8 +26,14 @@ const ListCom = () => {
         }
     }, [])
     useEffect(() => {
-        handleSendGetFile('stumgt')
-    }, [handleSendGetFile])
+        const pathParams = handleParsePathParams(window.location.pathname);
+        const pathPar = pathParams[1];
+        if (pathPar) {
+            handleSendGetFile(pathPar);
+        } else {
+            handleSendGetFile('app');
+        }
+    }, [handleSendGetFile]);
     const columns = [
         {
             title: "KeyName",

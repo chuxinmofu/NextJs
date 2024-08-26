@@ -1,26 +1,10 @@
 
 'use client'
-import React from 'react';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
 import { Breadcrumb, Layout, Menu } from 'antd';
 import { useRouter } from 'next/navigation'
+import { menuList } from '@/utils/menu'
 const { Content, Sider } = Layout;
-
-const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map((icon, index) => {
-  const key = String(index + 1);
-  return {
-    key: `sub${key}`,
-    icon: React.createElement(icon),
-    label: `subnav ${key}`,
-    children: new Array(4).fill(null).map((_, j) => {
-      const subKey = index * 4 + j + 1;
-      return {
-        key: subKey,
-        label: `option${subKey}`,
-      };
-    }),
-  };
-});
 export default function ListLayout({ children }) {
   const router = useRouter();
   return (
@@ -43,11 +27,13 @@ export default function ListLayout({ children }) {
           <Sider width={200}>
             <Menu
               mode="inline"
-              defaultSelectedKeys={['1']}
+              defaultSelectedKeys={['app']}
               defaultOpenKeys={['sub1']}
               className='h-full'
-              items={items2}
-              onClick={(e) => router.push(`/list/${e?.key}`)}
+              items={menuList}
+              onClick={(e) => {
+                router.push(`/list/${e?.key}`)
+              }}
             />
           </Sider>
           <Content className='py-0 px-[24[x] min-h-[280px]' >

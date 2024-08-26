@@ -1,9 +1,9 @@
-
+import ListCom from "@/components/List"
 const ListDetail = ({ params }) => {
     
     return (
         <>
-            {params.id}
+          <ListCom />
         </>
     )
 }
