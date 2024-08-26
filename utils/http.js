@@ -23,7 +23,7 @@ async function post(url, data, options = {}) {
         body: JSON.stringify(data),
         ...options,
     };
-    const response = await fetch(url, config);
+    const response = await fetch(urlPoint(url), config);
     if (!response.ok) {
         const error = new Error(`HTTP error! status: ${response.status}`);
         error.status = response.status;
