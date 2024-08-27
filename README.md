@@ -1,3 +1,4 @@
+## 服务端代码地址：https://github.com/chuxinmofu/BilingualService
 ### **NextJs 初始篇**
 #### 一. 安装
 **注意: 要想使用NextJs，node版本不能太低，最低也要18以上，版本不够的，可以用nvm来管理**
