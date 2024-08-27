@@ -7,5 +7,8 @@ export const sendGetFile = async () => {
    return await get(`/eduTouch/getfile`)
 }
 export const sendPostAddNew = async (body) => {
-   return await post(`/eduTouch/addNew`, body)
+   return await post(`/eduTouch/addnew`, body)
+}
+export const sendPostDelete = async (body) => {
+   return await post(`/eduTouch/delete`, body)
 }

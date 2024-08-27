@@ -1,29 +1,19 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Divider, Button, Card, Space, Modal, Form, Input, Typography } from "antd";
-import Link from "next/link";
-import { sendGetFileApi, sendGetFile, sendPostAddNew } from "@/api/index";
-import { handleParsePathParams } from "@/utils/methodSet"
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { sendGetFileApi, sendGetFile, sendPostAddNew, sendPostDelete } from "@/api/index";
+import { handleParsePathParams, handleFormattedTableData, handleRemoveFirstDotAndBefore } from "@/utils/methodSet"
 
 const { Title, Text } = Typography;
+const { confirm } = Modal;
 const ListCom = () => {
     const [form] = Form.useForm();
     const [dataSource, setDataSource] = useState([])
-    const [fileData, setFileData] = useState([])
+    const [fileData, setFileData] = useState([])//仓库原始数据集合
     const [edit, setEdit] = useState(false)
     const [open, setOpen] = useState(false);
-    const [confirmLoading, setConfirmLoading] = useState(false);
-    const handleFormattedTableData = (object = {}) => {
-        return Object.entries(object).map(([key, element]) => {
-            const { zhCN, enUS } = element || {};
-            return {
-                key,
-                stringID: key,
-                zhCN: zhCN || undefined,
-                enUS: enUS || undefined,
-            };
-        });
-    }
+
     const handleSendGetFile = useCallback(async (ele) => {
         const response = await sendGetFileApi(ele);
         if (response?.code == 0) {
@@ -37,19 +27,48 @@ const ListCom = () => {
         }
     }, [])
     const handleOk = useCallback(() => {
+        const pathPar = handleParsePathParams()?.[1];
         form.validateFields().then(async values => {
             const response = await sendPostAddNew({
                 ...values,
-                menuKey: handleParsePathParams()?.[1] || 'App',
+                menuKey: pathPar || 'app',
                 modalType: edit ? 'edit' : 'add',
-                stringID_back: ''
             })
-            if (response?.code == 1) {
+            if (response?.code == 0) {
                 setOpen(false)
+                setEdit(false)
+                form?.resetFields()
+                handleSendGetFile(pathPar || 'app');
             }
         })
+    }, [edit, form, handleSendGetFile])
+    const handleCancel = useCallback(() => {
+        form?.resetFields()
+        setOpen(false);
+    }, [form]);
+    const handleDelete = useCallback((ele) => {
+        const pathPar = handleParsePathParams()?.[1];
+        confirm({
+            title: '确认删除吗?',
+            icon: <ExclamationCircleOutlined />,
+            content: '操作是不可逆的，请谨慎操作！',
+            okText: '确认',
+            cancelText: '取消',
+            async onOk() {
+                const response = await sendPostDelete({
+                    menuKey: pathPar || 'app',
+                    stringID: handleRemoveFirstDotAndBefore(ele?.stringID)
 
-    }, [fileData])
+                })
+                if (response?.code == 0) {
+                    handleSendGetFile(pathPar || 'app');
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    }, [handleSendGetFile])
     useEffect(() => {
         const pathPar = handleParsePathParams()?.[1];
         if (pathPar) {
@@ -90,17 +109,34 @@ const ListCom = () => {
             title: "操作",
             width: 200,
             render: (_, record) => <>
-                <Link className='text-[#1677ff]' href={`/list/detail/${record?.key}`} key='info'>详情</Link>
+                <Button
+                    className='text-[#1677ff]'
+                    type='link'
+                    key='info'
+                    onClick={() => handleDelete(record)}
+                >
+                    删除
+                </Button>
                 <Divider key='divider' type='vertical' />
-                <Link className='text-[#1677ff]' href={`/list/detail/${record?.key}`} key='edit'>编辑</Link>
+                <Button
+                    className='text-[#1677ff]'
+                    type='link'
+                    key='edit'
+                    onClick={async () => {
+                        form?.setFieldsValue({
+                            ...record,
+                            stringID: handleRemoveFirstDotAndBefore(record?.stringID)
+                        })
+                        setEdit(true)
+                        setOpen(true)
+                    }}>
+                    编辑
+                </Button>
             </>
         }
     ]
 
-    const handleCancel = () => {
-        console.log('Clicked cancel button');
-        setOpen(false);
-    };
+
     return (
         <Card title='国际化列表'>
             <Space direction='vertical' className='w-full'>
@@ -112,7 +148,6 @@ const ListCom = () => {
                 open={open}
                 centered={true}
                 onOk={handleOk}
-                confirmLoading={confirmLoading}
                 onCancel={handleCancel}
             >
                 <Form
