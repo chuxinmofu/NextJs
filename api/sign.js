@@ -3,5 +3,5 @@ import { stringify } from 'qs';
 
 
 export const sendPostLogin = async (body) => {
-    return await post(`/eduTouch/delete`, body)
+    return await post(`/eduTouch/login`, body)
 }

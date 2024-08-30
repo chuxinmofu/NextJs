@@ -2,21 +2,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Image, Card, Form, Input, Button, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { useRouter } from 'next/navigation'
 import { logo } from "@/utils/defaultIcon";
 import { sendPostLogin } from "@/api/sign";
 import styles from "./index.module.scss";
 
 
+
+
 const Login = () => {
+    const router = useRouter();
     const [loginLoading, setLoginLoading] = useState(false);//登录按钮状态
     const [form] = Form.useForm();
     const handleSubmit = useCallback(async () => {
         const { username, password } = await form?.validateFields()
         setLoginLoading(true)
         const response = await sendPostLogin({ username, password });
-        console.log(response)
+        if (response?.code == 0) {
+            router.push('/')
+        } else {
+            message.warning(response?.msg)
+        }
         setLoginLoading(false)
-    }, [form])
+    }, [form, router])
 
     return (
         <div className={`${styles.login} flex flex-col justify-center items-center w-full box-border p-[20px] min-h-screen`}>
@@ -33,10 +41,9 @@ const Login = () => {
                         <Input
                             className="h-[40px] input-bordered"
                             prefix={<UserOutlined />}
-                            placeholder="请输入账号"
+                            placeholder="13999998888"
                         />
                     </Form.Item>
-
                     <Form.Item
                         name="password"
                         rules={[{ required: true, message: '请输入密码' }]}
@@ -45,7 +52,7 @@ const Login = () => {
                             className="h-[40px] input-bordered"
                             prefix={<LockOutlined />}
                             type="password"
-                            placeholder="请输入密码"
+                            placeholder="kira@2023"
                         />
                     </Form.Item>
 
